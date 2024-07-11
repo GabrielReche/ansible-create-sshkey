@@ -1,0 +1,3 @@
+[servers]
+192.168.20.4 ansible_user=admin01 ansible_ssh_pass=425338101 ansible_become_pass=425338101 ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+

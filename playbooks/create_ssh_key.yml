@@ -1,0 +1,40 @@
+---
+- name: Generate SSH Key Pair for current user
+  hosts: servers
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Gather facts
+      setup:
+        filter: ansible_hostname
+
+    - name: Ensure .ssh directory exists
+      file:
+        path: "{{ ansible_env.HOME }}/.ssh"
+        state: directory
+        mode: "0700"
+
+    - name: Generate SSH key pair
+      openssh_keypair:
+        path: "{{ ansible_env.HOME }}/.ssh/adminssh-key-{{ ansible_hostname }}"
+        type: rsa
+        size: 2048
+        state: present
+        mode: "0600"
+
+    - name: Set the correct permissions on the private key
+      file:
+        path: "{{ ansible_env.HOME }}/.ssh/adminssh-key-{{ ansible_hostname }}"
+        mode: "0600"
+
+    - name: Set the correct permissions on the public key
+      file:
+        path: "{{ ansible_env.HOME }}/.ssh/adminssh-key-{{ ansible_hostname }}.pub"
+        mode: "0644"
+
+    - name: Move private key to local machine
+      fetch:
+        src: "{{ ansible_env.HOME }}/.ssh/adminssh-key-{{ ansible_hostname }}"
+        dest: "./retrieved_keys/adminssh-key-private_{{ ansible_hostname }}"
+        flat: yes
+        mode: "0600"
