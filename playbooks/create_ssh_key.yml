@@ -4,16 +4,19 @@
   become: true
   gather_facts: true
   tasks:
+    # Recolhe informações sobre o sistema, incluindo o hostname
     - name: Gather facts
       setup:
         filter: ansible_hostname
 
+    # Assegura que o diretório .ssh existe e tem as permissões corretas
     - name: Ensure .ssh directory exists
       file:
         path: "{{ ansible_env.HOME }}/.ssh"
         state: directory
         mode: "0700"
 
+    # Gera o par de chaves SSH com o nome baseado no hostname da máquina
     - name: Generate SSH key pair
       openssh_keypair:
         path: "{{ ansible_env.HOME }}/.ssh/adminssh-key-{{ ansible_hostname }}"
@@ -22,16 +25,19 @@
         state: present
         mode: "0600"
 
+    # Define as permissões corretas para a chave privada
     - name: Set the correct permissions on the private key
       file:
         path: "{{ ansible_env.HOME }}/.ssh/adminssh-key-{{ ansible_hostname }}"
         mode: "0600"
 
+    # Define as permissões corretas para a chave pública
     - name: Set the correct permissions on the public key
       file:
         path: "{{ ansible_env.HOME }}/.ssh/adminssh-key-{{ ansible_hostname }}.pub"
         mode: "0644"
 
+    # Move a chave privada para a máquina local com o nome baseado no hostname
     - name: Move private key to local machine
       fetch:
         src: "{{ ansible_env.HOME }}/.ssh/adminssh-key-{{ ansible_hostname }}"
